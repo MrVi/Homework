@@ -5,9 +5,13 @@ for (var i = 0; i < 10; i++) {
 }
 
 for (var i = 0; i < 10; i++) {
-    setTimeout(out(i), 1000);
+    f = function() {
+        var y = i;
+        return function() {
+            setTimeout(function(){
+                console.log(y); }, 1000); };
+    }();
+    f();
 }
-function out(i){
-    console.log(i);
-};
+
 
