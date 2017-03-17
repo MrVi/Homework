@@ -7,8 +7,7 @@ var result = arr1.filter(function(n) {
 });
 alert(result);
 
-//Var2
-
+//Var2 - final
 var arr1=[9,6,4,3,2];
 var arr2=[3,4,1,5,2];
 var result=[];
@@ -32,8 +31,8 @@ for (var i=0;i<arr2.length; i++){
         result.push(arr2[i]);
     }
 }
-
 alert("res" + result);
+
 //Var3
 function IntersecArrays(A,B) {
     var  c = 0, C = [];
