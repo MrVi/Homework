@@ -140,14 +140,15 @@ inputElement.addEventListener('keydown', onInputKeydown);
  ==================================*/
 
 // формируем счетчик статистики
-var stats = {
-    done: 0,
-    todo: 0
-};
+
+function Statistic() {
+    this._done = 0;
+    this._todo = 0;
+}
 
 // необходимые DOM элементы
 var statsElement = document.querySelector('.statistic');
-var statsDonelElement = statsElement.querySelector('.statistic__done');
+var statsDoneElement = statsElement.querySelector('.statistic__done');
 var statsTodoElement = statsElement.querySelector('.statistic__left');
 var statsTotalElement = statsElement.querySelector('.statistic__total');
 
@@ -155,10 +156,10 @@ var statsTotalElement = statsElement.querySelector('.statistic__total');
 /**
  * отрисовывает статистику в DOM
  */
-function renderStats() {
-    statsDonelElement.textContent = stats.done;
-    statsTodoElement.textContent = stats.todo;
-    statsTotalElement.textContent = stats.done + stats.todo;
+Statistic.prototype.renderStats = function () {
+    statsDoneElement.textContent = this._done;
+    statsTodoElement.textContent = this._todo;
+    statsTotalElement.textContent = this._done + this._todo;
 }
 
 // теперь на каждое из действий — обновление статистики
@@ -166,42 +167,50 @@ function renderStats() {
  * добавляет значение к статистике и обновляет DOM
  * @param {boolean} isTodo — статус новой тудушки
  */
-function addToStats(isTodo) {
+Statistic.prototype.addToStats = function (isTodo) {
     if (isTodo) {
-        stats.todo++;
+        this._todo++;
     } else {
-        stats.done++;
+        this._done++;
     }
-    renderStats();
+    this.renderStats();
 }
 
 /**
  * измененяет статус тудушки и обновляет DOM
  * @param {boolean} isTodo статус после изменения
  */
-function changeStats(isTodo) {
+Statistic.prototype.changeStats = function (isTodo) {
     if (isTodo) {
-        stats.todo++;
-        stats.done--;
+        this._todo++;
+        this._done--;
     } else {
-        stats.todo--;
-        stats.done++;
+        this._todo--;
+        this._done++;
     }
-    renderStats();
+    this.renderStats();
 }
 
 /**
  * отрабатывает удаление тудушки и обновляет DOM
  * @param {boolean} isTodo статус удаленной тудушки
  */
-function deleteFromStats(isTodo) {
+Statistic.prototype.deleteFromStats = function (isTodo) {
     if (isTodo) {
-        stats.todo--;
+        this._todo--;
     } else {
-        stats.done--;
+        this._done--;
     }
-    renderStats();
+    this.renderStats();
 }
+
+Statistic.prototype.setNewStats = function (tasksDone, allTasks) {
+    this._todo = allTasks - tasksDone;
+    this._done = tasksDone;
+    this.renderStats();
+}
+
+var stats = new Statistic();
 
 // теперь надо переписать старые методы, чтобы учесть статистику
 
@@ -407,7 +416,7 @@ function addTodo(name) {
     if (currentFilter !== filterValues.DONE) {
         insertTodoElement(newTask);
     }
-    addToStats(true);
+    stats.addToStats(true);
 }
 
 // обновление статистики теперь не зависит от того, вставляется ли тудушка в DOM или нет
@@ -444,7 +453,7 @@ function changeTodoStatus(element) {
     }
 
     // и поменять статистику
-    changeStats(!isTodo);
+    stats.changeStats(!isTodo);
 }
 
 // аналогично при удалении — нужно удалять из todoList
@@ -457,7 +466,7 @@ function deleteTodo(element) {
     var isTodo = task.status === 'todo';
     todoList.splice(todoList.indexOf(task), 1);
     listElement.removeChild(element);
-    deleteFromStats(isTodo);
+    stats.deleteFromStats(isTodo);
 }
 
 
@@ -470,8 +479,5 @@ var tasksDone = todoList.filter(function (item) {
     return item.status === 'done';
 }).length;
 
-stats = {
-    done: tasksDone,
-    todo: todoList.length - tasksDone
-};
-renderStats();
+stats.setNewStats(tasksDone, todoList.length);
+
